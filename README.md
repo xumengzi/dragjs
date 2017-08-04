@@ -1,7 +1,7 @@
 # dragjs
 面向对象之封装拖拽对象
 
-### 采用构造函数加原型的方法封装的拖拽对象，原生js，不依赖任何框架
+### 采用构造函数加原型的方法封装的拖拽对象，原生js，不依赖任何框架, https://jarveniv.github.io/dragjs/20170610/drag.html
 
 ![如下图](https://github.com/JarvenIV/dragjs/blob/master/20170610/imgs/drag.png)
 
