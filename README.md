@@ -6,8 +6,9 @@
 ![如下图](https://github.com/JarvenIV/dragjs/blob/master/20170610/imgs/drag.png)
 
 
-使用方法如下：
-1. new一个实例即可(支持id，类名)，比如:
+使用方法如下:
+
+1.new一个实例即可(支持id，类名)，比如:
 
 2.new Drag(document.getElementById('drag_1'));
 
