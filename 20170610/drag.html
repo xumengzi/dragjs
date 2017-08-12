@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8">
@@ -12,12 +12,15 @@
 	<meta name="author" content="xumeng">
 	<link rel="shortcut icon" type="image/x-icon" href="http://xumengzi.top/xu_icon_40.ico" media="screen" />
 	<style type="text/css">
+		body{
+			margin: 0;
+			padding: 0;
+		}
 		div{
 			width: 140px;
 			height: 30px;
 			line-height: 30px;
 		    text-align: center;
-		    margin: 20px;
 		    border: 1px #ccc solid;
 		    cursor: move;
 		}
@@ -27,11 +30,58 @@
 	<div id="drag_1">try to drag me</div>
 	<div id="drag_2">drag me too</div>
 	<div class="drag_3">and me</div>
+	<div id="drag_4" style="position: absolute;">test drag</div>
 	<script type="text/javascript" src="./js/drag.js"></script>
 	<script type="text/javascript">
-		new Drag(document.getElementById('drag_1'));
-		new Drag('drag_2');
-		new Drag('drag_3');
+		window.onload= function(){
+			new Drag(document.getElementById('drag_1'));
+			new Drag('drag_2');
+			new Drag('drag_3');
+
+
+			function Dragme(id){
+				var that = this;
+				this.curX = 0;
+				this.curY = 0;
+				this.tar = document.getElementById(id);
+				this.tar.onmousedown = function(e){
+					that.selfDown(e);
+
+					return false;
+				};
+			};
+			Dragme.prototype.selfDown = function(e){
+				var that = this;
+				this.curX = e.pageX - this.tar.offsetLeft,
+				this.curY = e.pageY - this.tar.offsetTop;
+
+				document.onmousemove = function(e){
+					that.selfMove(e);
+				};
+				document.onmouseup = function(){
+					that.selfUp();
+				};
+			};
+			Dragme.prototype.selfMove = function(e){
+				var disX = e.pageX - this.curX,
+						disY = e.pageY - this.curY;
+				var hei = document.documentElement.clientHeight,
+					wid = document.documentElement.clientWidth - this.tar.offsetWidth;
+				disX = disX < 0 ? 0 : disX;
+				disX = disX > wid ? wid : disX;
+				disY = disY < 0 ? 0 : disY;
+				disY = disY > hei ? hei : disY;
+
+				this.tar.style.left = disX + 'px';
+				this.tar.style.top = disY + 'px';
+			};
+			Dragme.prototype.selfUp = function(){
+				document.onmousemove = null;
+				document.onmouseup = null;
+			};
+
+			new Dragme('drag_4');
+		}
 	</script>
 </body>
 </html>
