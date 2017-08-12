@@ -94,6 +94,8 @@
 
 			document.addEventListener('mousemove', move, false);
 			document.addEventListener('mouseup', end, false);
+
+			return false;
 		};
 
 		function move(e){
@@ -105,14 +107,19 @@
 			var distanceX = currentX - that.startX;
 			var distanceY = currentY - that.startY;
 			
-			var width = (that.sourceX + distanceX).toFixed(),
-				maxWidth = document.body.offsetWidth,
-				height = (that.sourceY + distanceY).toFixed(),
-				maxHeigth = document.body.offsetHeight;
+			var disX = (that.sourceX + distanceX).toFixed(),
+				maxWidth = document.documentElement.clientWidth - that.elem.offsetWidth,
+				disY = (that.sourceY + distanceY).toFixed(),
+				maxHeigth = document.documentElement.clientHeight;
+
+			disX = disX < 0 ? 0 : disX;
+			disX = disX > maxWidth ? maxWidth : disX;
+			disY = disY < 0 ? 0 : disY;
+			disY = disY > maxHeigth ? maxHeigth : disY;
 
 			that.setPosition({
-				x: (width),
-				y: (height)
+				x: (disX),
+				y: (disY)
 			});
 		};
 
