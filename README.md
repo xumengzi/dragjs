@@ -13,3 +13,6 @@
 2.new Drag(document.getElementById('drag_1'));
 
 3.new Drag('drag_2');
+
+
+#### 不支持IE8等低版本浏览器
