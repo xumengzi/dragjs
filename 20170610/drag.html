@@ -16,7 +16,7 @@
 			margin: 0;
 			padding: 0;
 		}
-		div{
+		.dragggg{
 			width: 140px;
 			height: 30px;
 			line-height: 30px;
@@ -27,60 +27,144 @@
 	</style>
 </head>
 <body>
-	<div id="drag_1">try to drag me</div>
-	<div id="drag_2">drag me too</div>
-	<div class="drag_3">and me</div>
-	<div id="drag_4" style="position: absolute;">test drag</div>
+	<div class="dragggg" id="drag_1">try to drag me</div>
+	<div class="dragggg" id="drag_2">drag me too</div>
+	<div class="dragggg drag_3" class="">and me</div>
+	<div class="dragggg" id="drag_4" style="position: absolute;left: 200px;">我和它们不一样</div>
+	<div class="dragggg" id="drag_5" style="position: absolute;left: 20px;">我也是的</div>
 	<script type="text/javascript" src="./js/drag.js"></script>
 	<script type="text/javascript">
 		window.onload= function(){
+			//兼容性好（如果可以用transform就用，不然就绝对定位），不带虚线框的拖拽代码
+			//不足的地方是transform的时候，在加上限制则会有点问题
 			new Drag(document.getElementById('drag_1'));
 			new Drag('drag_2');
 			new Drag('drag_3');
 
+			//兼容性好，不带虚线框的拖拽代码
+			;(function(w){
+				function Dragme(id){
+					var that = this;
+					this.curX = 0;
+					this.curY = 0;
+					this.tar = document.getElementById(id);
+					this.tar.onmousedown = function(e){
+						that.selfDown(e);
 
-			function Dragme(id){
-				var that = this;
-				this.curX = 0;
-				this.curY = 0;
-				this.tar = document.getElementById(id);
-				this.tar.onmousedown = function(e){
-					that.selfDown(e);
-
-					return false;
+						return false;
+					};
 				};
-			};
-			Dragme.prototype.selfDown = function(e){
-				var that = this;
-				this.curX = e.pageX - this.tar.offsetLeft,
-				this.curY = e.pageY - this.tar.offsetTop;
+				Dragme.prototype.selfDown = function(e){
+					var that = this;
+					this.curX = e.pageX - this.tar.offsetLeft,
+					this.curY = e.pageY - this.tar.offsetTop;
 
-				document.onmousemove = function(e){
-					that.selfMove(e);
+					document.onmousemove = function(e){
+						that.selfMove(e);
+					};
+					document.onmouseup = function(){
+						that.selfUp();
+					};
 				};
-				document.onmouseup = function(){
-					that.selfUp();
+				Dragme.prototype.selfMove = function(e){
+					var disX = e.pageX - this.curX,
+							disY = e.pageY - this.curY;
+					var hei = document.documentElement.clientHeight,
+						wid = document.documentElement.clientWidth - this.tar.offsetWidth;
+					disX = disX < 0 ? 0 : disX;
+					disX = disX > wid ? wid : disX;
+					disY = disY < 0 ? 0 : disY;
+					disY = disY > hei ? hei : disY;
+
+					this.tar.style.left = disX + 'px';
+					this.tar.style.top = disY + 'px';
 				};
-			};
-			Dragme.prototype.selfMove = function(e){
-				var disX = e.pageX - this.curX,
-						disY = e.pageY - this.curY;
-				var hei = document.documentElement.clientHeight,
-					wid = document.documentElement.clientWidth - this.tar.offsetWidth;
-				disX = disX < 0 ? 0 : disX;
-				disX = disX > wid ? wid : disX;
-				disY = disY < 0 ? 0 : disY;
-				disY = disY > hei ? hei : disY;
+				Dragme.prototype.selfUp = function(){
+					document.onmousemove = null;
+					document.onmouseup = null;
+				};
 
-				this.tar.style.left = disX + 'px';
-				this.tar.style.top = disY + 'px';
-			};
-			Dragme.prototype.selfUp = function(){
-				document.onmousemove = null;
-				document.onmouseup = null;
-			};
-
+				w.Dragme = Dragme;
+			})(window);
 			new Dragme('drag_4');
+
+			//兼容性好，带虚线框的拖拽代码
+			;(function(w){
+				function Dragdashed(id){
+					var that = this;
+					this.curX = 0;
+					this.curY = 0;
+					this.lastX = 0;
+					this.lastY = 0;
+					this.tar = document.getElementById(id);
+					this.tar.onmousedown = function(e){
+						that.selfDown(e);
+						//某些浏览器拖拽过程中容易选中文字，这里阻止默认事件
+						return false;
+					};
+				};
+				Dragdashed.prototype.selfDown = function(e){
+					var that = this;
+					that.curX = e.pageX - that.tar.offsetLeft,
+					that.curY = e.pageY - that.tar.offsetTop;
+
+					//保存好最后的x和y的坐标
+					var disX = e.pageX - this.curX,
+						disY = e.pageY - this.curY;
+					this.lastX = disX;
+					this.lastY = disY;
+					//生成虚线框
+					var dashedBox = document.createElement('div');
+					dashedBox.classList.add('dashedBox');
+					dashedBox.style.position = 'absolute';
+					dashedBox.style.boxSizing = 'border-box';
+					dashedBox.style.border = '1px red dashed';
+					dashedBox.style.width = that.tar.offsetWidth + 'px';
+					dashedBox.style.height = that.tar.offsetHeight + 'px';
+					dashedBox.style.left = that.tar.offsetLeft + 'px';
+					dashedBox.style.top = that.tar.offsetTop + 'px';
+					document.body.appendChild(dashedBox);
+
+					document.onmousemove = function(e, dashedBox){
+						that.selfMove(e, dashedBox);
+					};
+					document.onmouseup = function(){
+						that.selfUp();
+					};
+				};
+				Dragdashed.prototype.selfMove = function(e, dashedBox){
+					var disX = e.pageX - this.curX,
+						disY = e.pageY - this.curY;
+					var hei = document.documentElement.clientHeight,
+						wid = document.documentElement.clientWidth - this.tar.offsetWidth;
+					disX = disX < 0 ? 0 : disX;
+					disX = disX > wid ? wid : disX;
+					disY = disY < 0 ? 0 : disY;
+					disY = disY > hei ? hei : disY;
+					//保存好最后的x和y的坐标
+					this.lastX = disX;
+					this.lastY = disY;
+
+					var box = document.getElementsByClassName('dashedBox')[0];
+					box.style.left = disX + 'px';
+					box.style.top = disY + 'px';
+				};
+				Dragdashed.prototype.selfUp = function(){
+					//销毁虚线框
+					document.body.removeChild(document.getElementsByClassName('dashedBox')[0]);
+					//改变目标目标元素位置
+					this.tar.style.left = this.lastX + 'px';
+					this.tar.style.top = this.lastY + 'px';
+					//销毁事件
+					document.onmousemove = null;
+					document.onmouseup = null;
+				};
+
+				w.Dragdashed = Dragdashed;
+			})(window);
+
+			new Dragdashed('drag_5');
+
 		}
 	</script>
 </body>
