@@ -1,3 +1,22 @@
+/*
+create by xumeng 2017-07-20
+
+采用构造函数模式+原型模式，并且包裹在自执行函数里，防止污染环境。
+
+拖拽原理：
+1.如果浏览器支持transform，那么就改变它的transform的x和y的值，否则就采用绝对定位改变x和y。
+里面有一个函数就是专门来判断浏览器的transform兼容情况的。
+2.拖拽的核心事件是捕捉鼠标的mousedown,mousemove,mouseup。
+3.如果需要设置边界值，那么就获取到当前试图的宽和高，然后再判断x和y。
+
+碰到的问题：
+1.拖拽的时候选中文字，这是因为触发了浏览器的默认事件，所以return false就好了（在mousedown事件里）。
+
+
+感受：
+1.随着浏览器的兼容性越来越好，代码写的越来越少了。
+2.像attachEvent,new ActiveXObject()对象啊都不写了。
+*/
 ;(function(w){
 	//这是一个私有属性，不需要被实例访问
 	var transform = getTransform();
